@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,max-scale=1.0,user-scale=no">
+	<title>Vue-cart</title>
+	<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+	<div id="app">
+		<hr>
+		<p class="title">购物车</p>
+		<!-- 商品导航 -->
+		<nav>
+			<ul>
+				<li>商品信息</li>
+				<li>商品金额</li>
+				<li>数量</li>
+				<li>总金额</li>
+				<li>编辑</li>
+			</ul>
+		</nav>
+		
+		<!-- 商品列表项 -->
+		<ul class="cart-list">
+			<li v-for="item in list">
+				<div class="cart-tab cart-tab1">
+					<a href="javascript:void(0)" class="shop-selected" :class={'selected':item.checked} @click="selected(item)"></a>
+					<div class="img">
+						<img :src="item.productImage" alt="图片" @click="selected(item)">
+					</div>
+					<div class="jieshao">
+						<p v-text="item.productName">黄鹤楼香烟</p>
+						<p>赠送：<span v-text="item.parts">打火机</span></p>
+					</div>
+				</div>
+				<div class="cart-tab cart-tab2">
+					<span>{{item.productPrice | formatMoney}}</span>
+				</div>
+				<div class="cart-tab cart-tab3">
+					<div>
+						<div class="num-input">
+							<span @click="changeNumber(item,-1)">-</span>
+							<input type="text" name="shop-num" v-model="item.productNumber">
+							<span @click="changeNumber(item,1)">+</span>
+						</div>
+						<div>
+							<p>有货</p>
+						</div>
+					</div>
+				</div>
+				<div class="cart-tab cart-tab4">
+					<span v-text="">{{item.productPrice*item.productNumber | formatMoney}}</span>
+				</div>
+				<div class="cart-tab cart-tab5">
+					<img src="img/delete.png" alt="" @click="deleteProduct(item)">
+				</div>
+			</li>
+		</ul>
+		
+		<!-- 底部结账 -->
+		<div class="footer">
+			<div class="choose-all">
+				<a href="javascript:void(0)" class="shop-selected" :class="{'selected':allClecked}" @click="checkAll(true)"></a>
+				<span class="all">全选</span>
+				<span class="un-all"  @click="checkAll(false)">取消全选</span>
+			</div>
+			<div class="jiezhang">
+				<div>
+					<span>{{totalMoney | formatMoney}}</span>
+				</div>
+				<a href="javascript:void(0)">结账</a>
+			</div>
+		</div>
+
+		<!-- 遮罩层 -->
+		<div class="md-overlay" v-if="show" @click="{show=false}"></div>
+		<div class="fade-box" :class="{'seen':show}">
+			<div class="md-del">
+				<img src="img/del.png" alt="" @click="{show=false}">
+				<p>你确定删除此订单信息吗？</p>
+				<div class="del-btn">
+					<button @click="yesDelete()">Yes</button>
+					<button class="active" @click="{show=false}">No</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="node_modules/vue/dist/vue.min.js"></script>
+<script src="node_modules/vue-resource/dist/vue-resource.min.js"></script>
+<script src="js/cart.js"></script>
+</html>

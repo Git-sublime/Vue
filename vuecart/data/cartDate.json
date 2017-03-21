@@ -1,0 +1,22 @@
+{
+	"status":1,
+	"result":{
+		"totalMoney":59,
+		"list":[
+			{
+			"productName":"黄鹤楼香烟",
+			"productPrice":19,
+			"productNumber":1,
+			"productImage":"img/hhl.jpg",
+			"parts":"打火机"
+			},
+			{
+			"productName":"加多宝",
+			"productPrice":5,
+			"productNumber":8,
+			"productImage":"img/hhl.jpg",
+			"parts":"吸管"
+			}
+		]
+	}
+}
