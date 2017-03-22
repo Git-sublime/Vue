@@ -36,6 +36,14 @@ new Vue({
 				postCode:'610039',
 				tel:'18228075165',
 				isDefault:false
+			},
+			{
+				addressID:'10005',
+				userName:'李忠胜',
+				streetName:'四川省成都市郫县红光镇西华大学',
+				postCode:'610039',
+				tel:'18228075165',
+				isDefault:false
 			}
 		]
 	},
