@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport" content="device-width">
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+	<meta name="keywords" content="个税计算,个税计算器,新个税计算器,2018个税计算器,2019个税计算器">
+	<meta name="Description" content="简洁实用的个税计算器，不需要再为工资扣税计算而发愁。新版5000档个人缴纳税、旧版3500档个人缴纳税轻松查阅。">
+	<link rel="Shortcut Icon" href="./public/favicon.ico">
+	<title>个税计算器</title>
+</head>
+<link rel="stylesheet" href="./public/css/bootstrap.min.css">
+<style>
+	#app{width: 100%;min-height: 100vh;position: relative;overflow: hidden;}
+	.bgimg{position: absolute;top: 0;left: 0;z-index: -1;filter: contrast(120%) grayscale(100%);opacity: .2}
+	@media screen and (min-width: 540px){.bgimg{width: 100%} } 
+	.container{max-width: 800px;}
+	.main{padding-bottom: 50px;}
+	.navbar{margin-bottom: 20px;}
+	.input-group{margin-bottom: 15px;}
+	.navbar-brand{font-family: 'ROCKWELL EXTRA BOLD';font-weight: bold;}
+	.TaxInfo{text-indent: 2px;}
+	.TaxType{margin-bottom: 15px}
+	.btn-default:hover{background: none}
+	.copyright{position: absolute;bottom: 0;left: 0;width: 100%;text-align: center; font-size: 10px;color: #777;padding-bottom: 10px;}
+	.wrapper{margin-bottom: 20px;}
+	/*详细计算*/
+	.calc-detail{position: relative;}
+	.tips{line-height: 22px;text-indent: 2px;font-size: 12px;margin-bottom: 0;}
+	.tips>span{color: #fba31a;}
+	.calc-display{position: absolute;left: 0;bottom: -36px;line-height: 20px;text-align: center;width: 100%;font-size: 12px;color: #777;}
+	.calc-display-light{color: #337ab7;}
+	.calc-display>span{cursor: pointer;display: inline-block;margin: 0 auto;padding: 0 20px;}
+	.table{margin: 10px 0;}
+	.table>tbody>tr>td{text-align: center;}
+	.high-light{color: #fba31a;}
+	.questions{position: absolute;top: 0;right: 0;line-height: 50px;padding: 0 15px;color: #777;}
+	.questions:hover{text-decoration: none;}
+	.nav-wrapper{position: relative;}
+</style>
+<body>
+	<div id="app">
+		<!-- 背景图 -->
+		<img class="bgimg" src="public/img/taxBg.jpg" alt="" id="bgimg">
+		<!-- 导航栏 -->
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid container nav-wrapper">
+		    <div class="navbar-header">
+		      <a class="navbar-brand" href="https://github.com/Git-sublime">
+		        LZSFE
+		      </a>
+		    </div>
+		    <a href="https://www.jianshu.com/p/247bd34b2856" class="pull-right questions">问题反馈</a>
+		  </div>
+		</nav>
+		<div class="container main">
+			<!-- 选择新老个税计算 -->
+			<div class="TaxType">
+				<div class="btn-group btn-group-justified" role="group" aria-label="...">
+				  <div class="btn-group" role="group">
+				    <button type="button" class="btn btn-default" :class="{'active': !IsNewVersion}" @click="IsNewVersion = false">旧版（3500起征）</button>
+				  </div>
+				  <div class="btn-group" role="group">
+				    <button type="button" class="btn btn-default" :class="{'active': IsNewVersion}" @click="IsNewVersion = true">新版（5000起征）</button>
+				  </div>
+				</div>
+			</div>
+			<!-- 个税查询 -->
+			<div class="wrapper">
+				<div class="input-group">
+				  <span class="input-group-addon" id="basic-addon3">税前工资</span>
+				  <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" v-model="TaxBefore">
+				  <span class="input-group-addon" id="basic-addon3">元</span>
+				</div>
+				<div class="input-group">
+				  <span class="input-group-addon" id="basic-addon3">五险一金</span>
+				  <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" v-model="Fraog">
+				  <span class="input-group-addon" id="basic-addon3">元</span>
+				</div>
+				<p class="TaxInfo">应纳所得额：<span v-show="FuckMoney > 0">{{FuckMoney}} 元</span></p>
+				<p class="TaxInfo">速算扣除数：<span v-show="FuckMoney > 0">{{Deduct}} 元</span></p>
+				<p class="TaxInfo">税率：<span v-show="FuckMoney > 0">{{TaxRate}}%</span></p>
+				<p class="TaxInfo">应缴税款：<span v-show="FuckMoney > 0">{{NotMoney}} 元</span></p>
+				<p class="TaxInfo">实发工资：<span v-show="FuckMoney > 0">{{TaxAfter}} 元</span></p>
+			</div>
+			<!-- 详细计算过程 -->
+			<div class="calc-detail">
+				<div class="calc-detail-display" v-show="IsShowDetail">
+					<!-- 旧个税表 -->
+					<table class="table table-bordered table-condensed" v-show="!IsNewVersion">
+					  <tr> <td>级数</td> <td>应纳税所得额(X)</td> <td>税率</td> <td>速算扣除数</td> </tr>
+					  <tr> <td>1</td> <td>(0＜X≤1,500)</td> <td>3%</td> <td>0</td> </tr> 
+					  <tr> <td>2</td> <td>(1,500＜X≤4,500)</td> <td>	10%</td> <td>105</td> </tr> 
+					  <tr> <td>3</td> <td>(4,500＜X≤9,000)</td> <td>	20%</td> <td>555</td> </tr> 
+					  <tr> <td>4</td> <td>(9,000＜X≤35,000)</td> <td>25%</td> <td>1005</td> </tr> 
+					  <tr> <td>5</td> <td>(35,000＜X≤55,000)</td> <td>30%</td> <td>2755</td> </tr> 
+					  <tr> <td>6</td> <td>(55,000＜X≤80,000)</td> <td>35%</td> <td>5505</td> </tr> 
+					  <tr> <td>7</td> <td>(X＞80,000)</td> <td>45%</td> <td>13505</td> </tr> 
+					</table>
+					<!-- 新个税表 -->
+					<table class="table table-bordered table-condensed" v-show="IsNewVersion">
+					  <tr> <td>级数</td> <td>应纳税所得额(X)</td> <td>税率</td> <td>速算扣除数</td> </tr>
+					  <tr> <td>1</td> <td>(0＜X≤3,000)</td> <td>3%</td> <td>0</td> </tr> 
+					  <tr> <td>2</td> <td>(3,000＜X≤12,000)</td> <td>10%</td> <td>210</td> </tr> 
+					  <tr> <td>3</td> <td>(12,000＜X≤25,000)</td> <td>20%</td> <td>1410</td> </tr> 
+					  <tr> <td>4</td> <td>(25,000＜X≤35,000)</td> <td>25%</td> <td>2660</td> </tr> 
+					  <tr> <td>5</td> <td>(35,000＜X≤55,000)</td> <td>30%</td> <td>4410</td> </tr> 
+					  <tr> <td>6</td> <td>(55,000＜X≤80,000)</td> <td>35%</td> <td>7160</td> </tr> 
+					  <tr> <td>7</td> <td>(X＞80,000)</td> <td>45%</td> <td>15160</td> </tr> 
+					</table>
+					<div class="calc-taps">
+						<p class="tips"><span>应纳所得额</span> = 税前工资 - 起征点 - 五险一金</p>
+						<p class="tap-calc" v-show="FuckMoney > 0">
+							<!-- <span class="high-light">{{FuckMoney}}&nbsp;=&nbsp;</span> -->
+							{{TaxBefore}}
+							<span v-show="IsNewVersion">&nbsp;-&nbsp;5000</span>
+							<span v-show="!IsNewVersion">&nbsp;-&nbsp;3500</span>
+							<span v-show="Fraog > 0">&nbsp;-&nbsp;{{Fraog}}</span>&nbsp;=&nbsp;
+							<span class="high-light">{{FuckMoney}} 元</span>
+						</p>
+						<p class="tips"><span>应纳税额</span> = 应纳所得税 * 税率 - 速算扣除数</p>
+						<p class="tap-calc" v-show="FuckMoney > 0">
+							{{FuckMoney}}&nbsp;*&nbsp;{{TaxRate}}%&nbsp;-&nbsp;{{Deduct}}&nbsp;=&nbsp;
+							<span class="high-light">{{NotMoney}} 元</span>
+						</p>
+						<p class="tips"><span>实发工资</span> = 税前工资 - 五险一金 - 应纳税额</p>
+						<p class="tap-calc" v-show="FuckMoney > 0">
+							{{TaxBefore}}<span v-show="Fraog > 0">&nbsp;-&nbsp;{{Fraog}}</span>&nbsp;-&nbsp;{{NotMoney}}&nbsp;=&nbsp;
+							<span class="high-light">{{TaxAfter}} 元</span>
+						</p>
+					</div>
+				</div>
+				<!-- 展开详细计算过程 -->
+				<p class="calc-display" :class="{'calc-display-light': FuckMoney > 0}" v-show="!IsShowDetail" @click="IsShowDetail = true"><span>详细信息 <span class="glyphicon glyphicon-menu-down"></span></span></p>
+			</div>
+		</div>
+		<!-- 
+			作者： 忠胜
+			时间： 2018-09-21
+			描述： 百度搜出来的个税计算器都是各种广告,还他么不好用; 那就自己写一个用吧
+		-->
+		<div class="copyright">©2016-2019 lzsfe.cn All Rights Reserved.</div>
+	</div>
+</body>
+<script src="./public/js/vue.min.js"></script>
+<script>
+	var Vm = new Vue({
+			el: "#app",
+			data: {
+				IsShowDetail: false, //详细计算过程
+				IsNewVersion: false, //新个税
+				TaxBefore: 0,        //税前工资
+				Fraog: 0,            //五险一金
+				FuckMoney: 0,	     //应参加缴税金额
+				TaxRate: 0,  	     //税率
+				Deduct: 0,           //速算扣除数
+				NotMoney: 0,         //应纳税额
+				TaxAfter: 0          //税后工资
+			},
+			mounted: function() {
+				this.$nextTick(function(){
+					this.InitPage()
+				})
+			},
+			methods: {
+				InitPage: function(){
+					// 置空税前工资和五险一金
+					this.TaxBefore = '';
+					this.Fraog = '';
+					// 设置背景图高度
+					var winH = document.documentElement.clientHeight;
+					document.getElementById("bgimg").style.height = winH + "px";
+				}
+			},
+			computed: {
+				GetFuckMoney: function(){
+					// this.FuckMoney = this.TaxBefore - 5000 - this.Fraog;	
+				}
+			},
+			watch: {
+				TaxBefore: function(){
+					if (this.IsNewVersion) {
+						this.FuckMoney = this.TaxBefore - 5000 - this.Fraog;
+					}else{
+						this.FuckMoney = this.TaxBefore - 3500 - this.Fraog;
+					}
+				},
+				Fraog: function(){
+					if (this.IsNewVersion) {
+						this.FuckMoney = this.TaxBefore - 5000 - this.Fraog;
+					}else{
+						this.FuckMoney = this.TaxBefore - 3500 - this.Fraog;
+					}
+				},
+				FuckMoney: function(){
+					// 根据应缴税金额给出对应的 税率和速算扣除数
+					if (this.IsNewVersion) {
+						if (0 < this.FuckMoney) {
+							this.TaxRate = 3;
+							this.Deduct = 0;
+							if (3000 < this.FuckMoney){
+								this.TaxRate = 10;
+								this.Deduct = 210;
+								if (12000 < this.FuckMoney){
+									this.TaxRate = 20;
+									this.Deduct = 1410;
+									if (25000 < this.FuckMoney){
+										this.TaxRate = 25;
+										this.Deduct = 2660;
+										if (35000 < this.FuckMoney){
+											this.TaxRate = 30;
+											this.Deduct = 4410;
+											if (55000 < this.FuckMoney){
+												this.TaxRate = 35;
+												this.Deduct = 7160;
+												if (80000 < this.FuckMoney){
+													this.TaxRate = 45;
+													this.Deduct = 15160;
+												}
+											}
+										}
+									}
+								}
+							}
+						}// end-if 新个税5000档
+					}else{
+						if (0 < this.FuckMoney) {
+							this.TaxRate = 3;
+							this.Deduct = 0;
+							if (1500 < this.FuckMoney){
+								this.TaxRate = 10;
+								this.Deduct = 105;
+								if (4500 < this.FuckMoney){
+									this.TaxRate = 20;
+									this.Deduct = 555;
+									if (9000 < this.FuckMoney){
+										this.TaxRate = 25;
+										this.Deduct = 1005;
+										if (35000 < this.FuckMoney){
+											this.TaxRate = 30;
+											this.Deduct = 2755;
+											if (55000 < this.FuckMoney){
+												this.TaxRate = 35;
+												this.Deduct = 5505;
+												if (80000 < this.FuckMoney){
+													this.TaxRate = 45;
+													this.Deduct = 13505;
+												}
+											}
+										}
+									}
+								}
+							}
+						}// end-if 旧个税3500档
+					}
+					// 应纳税额
+					this.NotMoney = this.FuckMoney * this.TaxRate / 100 - this.Deduct;
+					// 税后工资
+					this.TaxAfter = this.TaxBefore - this.Fraog - this.NotMoney;
+				},
+				IsNewVersion: function(){
+					if (this.IsNewVersion) {
+						this.FuckMoney = this.TaxBefore - 5000 - this.Fraog;
+					}else{
+						this.FuckMoney = this.TaxBefore - 3500 - this.Fraog;
+					}
+					// 根据应缴税金额给出对应的 税率和速算扣除数
+					if (this.IsNewVersion) {
+						if (0 < this.FuckMoney) {
+							this.TaxRate = 3;
+							this.Deduct = 0;
+							if (3000 < this.FuckMoney){
+								this.TaxRate = 10;
+								this.Deduct = 210;
+								if (12000 < this.FuckMoney){
+									this.TaxRate = 20;
+									this.Deduct = 1410;
+									if (25000 < this.FuckMoney){
+										this.TaxRate = 25;
+										this.Deduct = 2660;
+										if (35000 < this.FuckMoney){
+											this.TaxRate = 30;
+											this.Deduct = 4410;
+											if (55000 < this.FuckMoney){
+												this.TaxRate = 35;
+												this.Deduct = 7160;
+												if (80000 < this.FuckMoney){
+													this.TaxRate = 45;
+													this.Deduct = 15160;
+												}
+											}
+										}
+									}
+								}
+							}
+						}// end-if 新个税5000档
+					}else{
+						if (0 < this.FuckMoney) {
+							this.TaxRate = 3;
+							this.Deduct = 0;
+							if (1500 < this.FuckMoney){
+								this.TaxRate = 10;
+								this.Deduct = 105;
+								if (4500 < this.FuckMoney){
+									this.TaxRate = 20;
+									this.Deduct = 555;
+									if (9000 < this.FuckMoney){
+										this.TaxRate = 25;
+										this.Deduct = 1005;
+										if (35000 < this.FuckMoney){
+											this.TaxRate = 30;
+											this.Deduct = 2755;
+											if (55000 < this.FuckMoney){
+												this.TaxRate = 35;
+												this.Deduct = 5505;
+												if (80000 < this.FuckMoney){
+													this.TaxRate = 45;
+													this.Deduct = 13505;
+												}
+											}
+										}
+									}
+								}
+							}
+						}// end-if 旧个税3500档
+					}
+					// 应纳税额
+					this.NotMoney = this.FuckMoney * this.TaxRate / 100 - this.Deduct;
+					// 税后工资
+					this.TaxAfter = this.TaxBefore - this.Fraog - this.NotMoney;
+				}
+			}
+
+		})
+
+</script>
+</html>
