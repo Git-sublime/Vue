@@ -23,7 +23,6 @@
 </head>
 <body>
     <div class="searchBox" id="app">
-        	<img class="index-logo-src" src="https://www.baidu.com/img/baidu_jgylogo3.gif" alt="百度一下" title="百度一下">
         <div class="search-wrapper">
             <input class="searchInput" type="text" v-model="t1" @keyup="get($event)" @keydown.down="next" @keydown.up.prevent="last">
             <button class="baiduBtn" @click="searchLink(-1)">百度一下</button>
