@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>小代百度</title>
+	<style> 
+	body{ margin:0; padding:0;display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh;background-image:url(./bg.jpg);background-repeat:no-repeat;background-size:cover;background-position: 50% 50%;}
+	.searchBox{margin-top: -10%;width:500px;text-align:center;background:#fff;}
+	.search-wrapper{display:flex;width:100%;margin: 0 auto;}
+	@media screen and (max-width: 400px) {
+	    .searchBox {
+	        width:90%;
+	        
+	    }
+	}
+	.searchInput{flex:1;height:32px;text-indent:8px;font-size:16px;}
+	.baiduBtn{background: #3385ff; color: #fff; width: 90px; box-shadow: none; border: none;font-size:14px;} 
+	.result-wrapper{padding:0;margin:0;border:1px solid #ccc; margin-top:-1px;}
+	.result-wrapper>li{list-style:none;text-align:left;line-height:27px;padding-left:8px;}
+	.result-wrapper>li.active{background:#f2f2f2;}
+</style>
+</head>
+<body>
+    <div class="searchBox" id="app">
+        	<img class="index-logo-src" src="https://www.baidu.com/img/baidu_jgylogo3.gif" alt="百度一下" title="百度一下">
+        <div class="search-wrapper">
+            <input class="searchInput" type="text" v-model="t1" @keyup="get($event)" @keydown.down="next" @keydown.up.prevent="last">
+            <button class="baiduBtn" @click="searchLink(-1)">百度一下</button>
+        </div>
+        <ul class="result-wrapper">
+            <li v-for="(value, index) in searchList" :class="{active: index == now}">{{value}}</li>
+        </ul>
+        <!-- <p v-show="searchList.length == 0">暂无数据...</p> -->
+    </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.3.4/vue-resource.min.js"></script>
+<script>
+  new Vue({
+    el: "#app",
+    data: {
+      searchList: [],//搜索弹出列表
+      t1: '',//输入框里面的值
+      now: -1//输入框里面的值的索引，0为列表第一项
+    },
+    methods: {
+      get: function(evt) {
+        if(evt.keyCode == 38 || evt.keyCode == 40) return
+        this.$http.jsonp("https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su",{//跨域请求数据
+            params: {
+                wd: this.t1//输入的关键词
+            },
+            jsonp: 'cb'//这里是callback
+        }).then((res) => {//请求成功回调，请求来的数据赋给searchList数组
+            this.searchList = res.body.s
+        },(res) => {//失败显示状态码
+            alert(res.status)
+        })
+        if (evt.keyCode == 13) {
+		    window.open('https://wwww.baidu.com/s?wd=' + this.t1)
+		}
+      },
+      next: function() {//向下选择
+        this.now ++
+        if(this.now == this.searchList.length){//判断是否超出
+          this.now = 0
+        }
+        this.t1 = this.searchList[this.now]
+      },
+      last: function() {//向上选择
+        this.now --
+        if(this.now < 0){
+          this.now = this.searchList.length -1
+        }
+        this.t1 = this.searchList[this.now]
+      },
+      searchLink: function(index) {//鼠标点击跳转
+      	if (index > -1){
+	        this.t1 = this.searchList[index];
+	        this.now = index;
+      	}
+        window.open('https://www.baidu.com/s?wd=' + this.t1)
+      }
+    }
+  })
+</script>
+</html>
