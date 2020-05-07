@@ -6,7 +6,7 @@
     <title>小代百度</title>
 	<style> 
 	body{ margin:0; padding:0;display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh;background-image:url(./bg.jpg);background-repeat:no-repeat;background-size:cover;background-position: 50% 50%;}
-	.searchBox{margin-top: -10%;width:500px;text-align:center;background:#fff;}
+	.searchBox{margin-top: -10%;width:500px;text-align:center;}
 	.search-wrapper{display:flex;width:100%;margin: 0 auto;}
 	@media screen and (max-width: 400px) {
 	    .searchBox {
@@ -16,8 +16,8 @@
 	}
 	.searchInput{flex:1;height:32px;text-indent:8px;font-size:16px;}
 	.baiduBtn{background: #3385ff; color: #fff; width: 90px; box-shadow: none; border: none;font-size:14px;} 
-	.result-wrapper{padding:0;margin:0;border:1px solid #ccc; margin-top:-1px;}
-	.result-wrapper>li{list-style:none;text-align:left;line-height:27px;padding-left:8px;}
+	.result-wrapper{padding:0;margin:0;border:1px solid #ccc; border-top:0;background: #fff;}
+	.result-wrapper>li{list-style:none;text-align:left;line-height:27px;padding-left:8px;cursor:pointer;}
 	.result-wrapper>li.active{background:#f2f2f2;}
 </style>
 </head>
@@ -27,8 +27,8 @@
             <input class="searchInput" type="text" v-model="t1" @keyup="get($event)" @keydown.down="next" @keydown.up.prevent="last">
             <button class="baiduBtn" @click="searchLink(-1)">百度一下</button>
         </div>
-        <ul class="result-wrapper">
-            <li v-for="(value, index) in searchList" :class="{active: index == now}">{{value}}</li>
+        <ul class="result-wrapper" v-show="t1">
+            <li v-for="(value, index) in searchList" :class="{active: index == now}" @click="searchLink(index)">{{value}}</li>
         </ul>
         <!-- <p v-show="searchList.length == 0">暂无数据...</p> -->
     </div>
